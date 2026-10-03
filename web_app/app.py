@@ -16,9 +16,25 @@ import pandas as pd
 import requests
 from flask import Flask, render_template, jsonify, send_file, request
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DATA_CSV_PATH = os.path.join(os.path.dirname(__file__), "results.csv")
+# Resolve template folder robustly across local and serverless runtimes
+template_dir = os.path.join(BASE_DIR, "templates")
+if not os.path.exists(template_dir):
+    alt_template_dir = os.path.join(os.path.dirname(BASE_DIR), "templates")
+    if os.path.exists(alt_template_dir):
+        template_dir = alt_template_dir
+
+app = Flask(__name__, template_folder=template_dir)
+
+# Resolve CSV path robustly
+possible_csv_paths = [
+    os.path.join(BASE_DIR, "results.csv"),
+    os.path.join(BASE_DIR, "web_app", "results.csv"),
+    os.path.join(os.path.dirname(BASE_DIR), "results.csv"),
+    os.path.join(BASE_DIR, "api", "results.csv")
+]
+DATA_CSV_PATH = next((p for p in possible_csv_paths if os.path.exists(p)), os.path.join(BASE_DIR, "results.csv"))
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
