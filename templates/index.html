@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IngredientsNetwork Data Explorer | Relu Challenge</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0b666a;
+            --primary-hover: #07474a;
+            --accent-color: #35a29f;
+            --bg-light: #f8fafc;
+        }
+        body {
+            background-color: var(--bg-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color) !important;
+        }
+        .header-card {
+            background: linear-gradient(135deg, #0b666a 0%, #164e63 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 2.2rem 2rem;
+            box-shadow: 0 10px 25px rgba(11, 102, 106, 0.15);
+        }
+        .metric-card {
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            padding: 1.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+        }
+        .metric-num {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .metric-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-table {
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+        }
+        .table > tbody > tr:hover {
+            background-color: #f1f5f9;
+        }
+        .badge-source {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+        }
+        .btn-custom {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        .btn-custom:hover {
+            background-color: var(--primary-hover);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-2">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <i class="fa-solid fa-leaf text-success"></i>
+                <span>IngredientsNetwork Explorer</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-light text-dark border badge-source">
+                    <i class="fa-solid fa-database text-primary me-1"></i> Source: <strong>{{ source }}</strong>
+                </span>
+                <a href="/download/csv" class="btn btn-sm btn-outline-success">
+                    <i class="fa-solid fa-download me-1"></i> Download CSV
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+        <!-- Banner -->
+        <div class="header-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h2 class="fw-bold mb-2">Relu Consultancy Hiring Challenge</h2>
+                    <p class="mb-0 text-white-50 fs-6">
+                        Objective 2: Verified Web Scraping, Data Extraction, Cleaning & Persistence Pipeline for <strong>IngredientsNetwork.com</strong>.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6">
+                        <i class="fa-solid fa-circle-check me-1"></i> {{ total_count }} Cleaned Records
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards (Analysis Questions) -->
+        <h5 class="fw-bold text-secondary mb-3">
+            <i class="fa-solid fa-chart-pie me-2"></i> Challenge Data Analysis Answers
+        </h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4 col-xl-2">
+                <div class="metric-card">
+                    <div class="metric-label">Total Ingredients</div>
+                    <div class="metric-num">{{ metrics.total_ingredients }}</div>
+                    <small class="text-muted">Platform Counter</small>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="metric-card">
+                    <div class="metric-label">Finished Products</div>
+                    <div class="metric-num">{{ metrics.total_finished_products }}</div>
+                    <small class="text-muted">Platform Counter</small>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="metric-card">
+                    <div class="metric-label">Herbs & Spices</div>
+                    <div class="metric-num">{{ metrics.herbs_spices_companies }}</div>
+                    <small class="text-muted">Companies in Cat.</small>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="metric-card">
+                    <div class="metric-label">Physical Formats</div>
+                    <div class="metric-num">{{ metrics.physical_formats_companies }}</div>
+                    <small class="text-muted">Companies with Formats</small>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="metric-card">
+                    <div class="metric-label">Cognitive & Mental</div>
+                    <div class="metric-num">{{ metrics.cognitive_mental_health_companies }}</div>
+                    <small class="text-muted">Health Category</small>
+                </div>
+            </div>
+            <div class="col-md-4 col-xl-2">
+                <div class="metric-card">
+                    <div class="metric-label">Scraped Suppliers</div>
+                    <div class="metric-num">{{ total_count }}</div>
+                    <small class="text-muted">Cleaned Dataset</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- DataTable Container -->
+        <div class="card-table">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa-solid fa-table-list me-2"></i> Cleaned Suppliers Directory
+                </h5>
+            </div>
+
+            <div class="table-responsive">
+                <table id="suppliersTable" class="table table-striped table-bordered align-middle" style="width:100%">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Primary Business Activity</th>
+                            <th>Sales Markets</th>
+                            <th>Categories</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Telephone</th>
+                            <th>Website</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in suppliers %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ s.get('Company Name', s.get('company_name', '')) }}</td>
+                            <td><span class="badge bg-secondary-subtle text-dark">{{ s.get('Primary Business Activity', s.get('primary_business_activity', 'Not Available')) }}</span></td>
+                            <td><small>{{ s.get('Sales Markets', s.get('sales_markets', 'Not Available')) }}</small></td>
+                            <td><small>{{ s.get('Categories', s.get('categories', 'Not Available'))[:60] }}...</small></td>
+                            <td><small>{{ s.get('Address', s.get('address', 'Not Available')) }}</small></td>
+                            <td>
+                                {% set email = s.get('Email', s.get('email', 'Not Available')) %}
+                                {% if email and email != 'Not Available' %}
+                                    <a href="mailto:{{ email }}" class="badge bg-info-subtle text-dark text-decoration-none">
+                                        <i class="fa-regular fa-envelope me-1"></i>{{ email }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set tel = s.get('Telephone', s.get('telephone', 'Not Available')) %}
+                                {% if tel and tel != 'Not Available' %}
+                                    <small>{{ tel }}</small>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set web = s.get('Website', s.get('website', '')) %}
+                                {% if web and web != 'Not Available' %}
+                                    <a href="{{ web }}" target="_blank" class="btn btn-sm btn-outline-primary py-0">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-custom py-0 view-btn"
+                                    data-name="{{ s.get('Company Name', s.get('company_name', '')) }}"
+                                    data-desc="{{ s.get('Company Description', s.get('company_description', '')) }}"
+                                    data-act="{{ s.get('Primary Business Activity', s.get('primary_business_activity', '')) }}"
+                                    data-markets="{{ s.get('Sales Markets', s.get('sales_markets', '')) }}"
+                                    data-cats="{{ s.get('Categories', s.get('categories', '')) }}"
+                                    data-events="{{ s.get('Events', s.get('events', '')) }}"
+                                    data-addr="{{ s.get('Address', s.get('address', '')) }}"
+                                    data-email="{{ s.get('Email', s.get('email', '')) }}"
+                                    data-phone="{{ s.get('Telephone', s.get('telephone', '')) }}"
+                                    data-web="{{ s.get('Website', s.get('website', '')) }}"
+                                    data-url="{{ s.get('Profile URL', s.get('profile_url', '')) }}">
+                                    Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="companyModalLabel">Company Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <span class="badge bg-primary" id="modalActivity">Activity</span>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-secondary">Description</h6>
+                        <p class="text-muted mb-0" id="modalDesc"></p>
+                    </div>
+                    <hr>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-secondary">Sales Markets</h6>
+                            <p class="small text-muted mb-0" id="modalMarkets"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-secondary">Categories</h6>
+                            <p class="small text-muted mb-0" id="modalCats"></p>
+                        </div>
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-secondary">Upcoming Events</h6>
+                            <p class="small text-muted mb-0" id="modalEvents"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-secondary">Address</h6>
+                            <p class="small text-muted mb-0" id="modalAddr"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-secondary">Contact Info</h6>
+                            <p class="small text-muted mb-1"><strong>Email:</strong> <span id="modalEmail"></span></p>
+                            <p class="small text-muted mb-0"><strong>Phone:</strong> <span id="modalPhone"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <a href="#" id="modalProfileLink" target="_blank" class="btn btn-outline-secondary btn-sm">View IngredientsNetwork Page</a>
+                    <a href="#" id="modalWebLink" target="_blank" class="btn btn-primary btn-sm">Visit Company Website</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#suppliersTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                order: [[0, 'asc']]
+            });
+
+            // Modal logic
+            var modal = new bootstrap.Modal(document.getElementById('companyModal'));
+            $(document).on('click', '.view-btn', function() {
+                var btn = $(this);
+                $('#companyModalLabel').text(btn.data('name'));
+                $('#modalDesc').text(btn.data('desc') || 'No description available.');
+                $('#modalActivity').text(btn.data('act') || 'General Supplier');
+                $('#modalMarkets').text(btn.data('markets') || 'N/A');
+                $('#modalCats').text(btn.data('cats') || 'N/A');
+                $('#modalEvents').text(btn.data('events') || 'None scheduled');
+                $('#modalAddr').text(btn.data('addr') || 'N/A');
+                $('#modalEmail').text(btn.data('email') || 'N/A');
+                $('#modalPhone').text(btn.data('phone') || 'N/A');
+
+                var web = btn.data('web');
+                if (web && web !== 'Not Available') {
+                    $('#modalWebLink').attr('href', web).show();
+                } else {
+                    $('#modalWebLink').hide();
+                }
+
+                var profile = btn.data('url');
+                if (profile) {
+                    $('#modalProfileLink').attr('href', profile).show();
+                } else {
+                    $('#modalProfileLink').hide();
+                }
+
+                modal.show();
+            });
+        });
+    </script>
+</body>
+</html>
